@@ -7,7 +7,7 @@ from urllib.parse import urlparse, parse_qs
 import weakref
 
 from LSP.plugin.core.protocol import Request, Location
-from LSP.plugin.core.typing import Any, Dict, Iterable, List, Mapping, Optional, TypedDict, Union
+from LSP.plugin.core.typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, TypedDict, Union
 from LSP.plugin.core.registry import LspTextCommand
 from LSP.plugin import register_plugin, unregister_plugin
 from LSP.plugin import AbstractPlugin, ClientConfig, SessionBufferProtocol
@@ -118,6 +118,16 @@ class LspGrammarlyPlugin(NpmClientHandler):
     
     def m___onUserAccountConnectedChange(self, params):
         print("User account connected: " + str(params["isUserAccountConnected"]))
+    
+    def on_pre_server_command(self, command: Mapping[str, Any], done_callback: Callable[[], None]) -> bool:
+        if command["command"] == 'grammarly.dismiss' and "arguments" in command:
+            dismissList = command["arguments"]
+            session = self.weaksession()
+            request = Request("$/dismissSuggestion", [dismissList], None, progress=True)
+            session.send_request(request, lambda p: None, lambda p: print("Error: " + str(p)))
+            done_callback()
+            return True
+        return super().on_pre_server_command(command, done_callback)
 
 def plugin_loaded() -> None:
     register_plugin(LspGrammarlyPlugin)
