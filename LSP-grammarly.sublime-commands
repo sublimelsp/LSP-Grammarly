@@ -1,0 +1,13 @@
+[
+    { "caption": "LSP-grammarly: Login to Grammarly", "command": "lsp_grammarly_execute_login"},
+    { "caption": "LSP-grammarly: Logout from Grammarly", "command": "lsp_grammarly_execute_logout"},
+    { "caption": "LSP-grammarly: Check if connected to Grammarly", "command": "lsp_grammarly_execute_is_connected"},
+    {
+        "caption": "LSP-grammarly: Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/LSP-grammarly/LSP-grammarly.sublime-settings",
+            "default": "{\n\t$0\n}\n"
+        }
+    }
+]

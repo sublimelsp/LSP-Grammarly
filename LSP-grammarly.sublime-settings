@@ -1,0 +1,10 @@
+{
+  "selector": "text.html.markdown | text.tex.latex",
+
+  "initializationOptions": { 
+    "clientId": "client_BaDkMgx4X19X9UxxYRCXZo",
+    "name": "Grammarly",
+  },
+
+  "schemes": ["file"],
+}
