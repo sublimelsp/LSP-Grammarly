@@ -98,7 +98,7 @@ class LspGrammarlyPlugin(NpmClientHandler):
     package_name = "LSP-Grammarly"
     server_directory = 'grammarly-languageserver'
     server_binary_path = os.path.join(
-        server_directory, 'grammarly-languageserver', 'packages', 'grammarly-languageserver', 'bin', 'server.js'
+        server_directory, 'node_modules', 'grammarly-languageserver', 'bin', 'server.js'
     )
     
     @classmethod

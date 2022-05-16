@@ -2,9 +2,11 @@
   "name": "lsp-grammarly",
   "private": true,
   "dependencies": {
+    "grammarly-languageserver": "^0.0.3",
+    "patch-package": "^6.4.7",
     "pnpm": "^7.1.0"
   },
   "scripts": {
-    "postinstall": "git clone https://github.com/znck/grammarly grammarly-languageserver ; which pnpm ; cd grammarly-languageserver ; git apply ../console.patch ; which pnpm ; NODE_ENV= pnpm i ; pnpm run build"
+    "postinstall": "patch-package"
   }
 }
