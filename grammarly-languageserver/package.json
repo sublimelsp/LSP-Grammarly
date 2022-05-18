@@ -3,8 +3,7 @@
   "private": true,
   "dependencies": {
     "grammarly-languageserver": "^0.0.3",
-    "patch-package": "^6.4.7",
-    "pnpm": "^7.1.0"
+    "patch-package": "^6.4.7"
   },
   "scripts": {
     "postinstall": "patch-package"
