@@ -6,7 +6,7 @@ Sublime LSP plugin for Grammarly
 Configuration
 ==
 
-Make sure you have a recent `node` installed (17.0.0+ recommended) and accessible in sublime's path, even if sublime does not source your `~/.bashrc` (or equivalent).
+Make sure you have a recent `node` installed (16.13.0+ recommended) and accessible in sublime's path, even if sublime does not source your `~/.bashrc` (or equivalent).
 
 Privacy warning
 ==
