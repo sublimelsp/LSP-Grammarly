@@ -3,7 +3,7 @@
     { "caption": "LSP-Grammarly: Logout from Grammarly", "command": "lsp_grammarly_execute_logout"},
     { "caption": "LSP-Grammarly: Check if connected to Grammarly", "command": "lsp_grammarly_execute_is_connected"},
     {
-        "caption": "LSP-Grammarly: Settings",
+        "caption": "Preferences: LSP-Grammarly Settings",
         "command": "edit_settings",
         "args": {
             "base_file": "${packages}/LSP-Grammarly/LSP-Grammarly.sublime-settings",
