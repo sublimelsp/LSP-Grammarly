@@ -14,6 +14,13 @@ from lsp_utils import NpmClientHandler
 
 class LspGrammarlyCommand(LspTextCommand):
     session_name = 'grammarly'
+    msg_prefix = "LSP-Grammarly: "
+
+    def error_message(self, msg: str) -> None:
+        sublime.error_message(self.msg_prefix + msg)
+
+    def message_dialog(self, msg: str) -> None:
+        sublime.message_dialog(self.msg_prefix + msg)
 
 class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
     cmd = "$/getOAuthUrl"
@@ -26,13 +33,11 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         def run_async() -> None:
             session = self.session_by_name()
+            self.weaksession = weakref.ref(session)
             if session:
                 request = Request(self.cmd, self.redirect_uri, None, progress=True)
-                self.weaksession = weakref.ref(session)
                 session.send_request(request, self._handle_response,
-                    lambda r: print(self.cmd, r))
-            else:
-                self._handle_resolve_response_async(None, item)
+                    lambda r: self.error_message("Failed to start login process"))
         sublime.set_timeout_async(run_async)
 
     def _handle_response(self, response: Union[List[Location], None]) -> None:
@@ -41,19 +46,18 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
         if session:
             session.window.show_input_panel("Open this url in the browser and paste in its place the redirection:", link,
                                      lambda r: self._send_response(r), None, lambda: self._send_response(None))
-        
+
     def _send_response(self, input: Optional[str]) -> None:
         if input:
             res = urlparse(input)
-            assert(res.scheme == 'vscode')
+            if res.scheme != 'vscode':
+                self.error_message("Unexpected authorization URL schema. Hint: the inputted authorization URL should start with 'vscode://'")
+                return
             request = Request(self.cmd_callback, input, None, progress=True)
             session = self.weaksession()
             if session:
-                session.send_request(request, lambda p: print("Connected." + str(p)),
-                    lambda r: print("Invalid authorization-response url"))
-        else:
-            print("Logging cancelled")
-
+                session.send_request(request, lambda p: None,
+                    lambda r: self.error_message("Invalid authorization-response url. Did it start with 'vscode://'?"))
 
 class LspGrammarlyExecuteLogoutCommand(LspGrammarlyCommand):
     cmd = "$/logout"
@@ -64,14 +68,14 @@ class LspGrammarlyExecuteLogoutCommand(LspGrammarlyCommand):
             assert(session)
             request = Request(self.cmd, None, None, progress=True)
             session.send_request(request, self._handle_response,
-                lambda r: print("Failed to logout: " + str(r)))
+                lambda r: self.error_message("Failed to logout"))
         sublime.set_timeout_async(run_async)
 
     def _handle_response(self, response: Union[List[Location], None]) -> None:
         if response:
-            print("Logout response: " + str(response))
+            self.message_dialog("Logout response: " + str(response))
         else:
-            print("Logged out")
+            self.message_dialog("Logged out")
 
 class LspGrammarlyExecuteIsConnectedCommand(LspGrammarlyCommand):
     cmd = "$/isUserAccountConnected"
@@ -79,25 +83,26 @@ class LspGrammarlyExecuteIsConnectedCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         def run_async() -> None:
             session = self.session_by_name()
-            assert(session)
+            if not session:
+                return
             request = Request(self.cmd, None, None, progress=True)
             session.send_request(request, self._handle_response,
-                lambda r: print("Failed to query whether connected: " + str(r)))
+                lambda r: self.error_message("Failed to query whether connected: " + str(r)))
         sublime.set_timeout_async(run_async)
 
     def _handle_response(self, response: Union[List[Location], None]) -> None:
         if response:
-            print("Connected: " + str(response))
+            self.message_dialog("Connected: " + str(response))
         else:
-            print("Not connected")
+            self.message_dialog("Not connected")
 
 class LspGrammarlyPlugin(NpmClientHandler):
     package_name = "LSP-Grammarly"
-    server_directory = 'grammarly-languageserver'
+    server_directory = "grammarly-languageserver"
     server_binary_path = os.path.join(
-        server_directory, 'node_modules', 'grammarly-languageserver', 'bin', 'server.js'
+        server_directory, "node_modules", "grammarly-languageserver", "bin", "server.js"
     )
-    
+
     @classmethod
     def name(cls) -> str:
         return LspGrammarlyCommand.session_name
@@ -105,23 +110,29 @@ class LspGrammarlyPlugin(NpmClientHandler):
     @classmethod
     def minimum_node_version(cls) -> Tuple[int, int, int]:
         return (16, 13, 0)
-    
-    def handle_status_response(self, status, is_error):
-        if is_error:
-            print("Requesting status failed")
-    
+
     def m___onDocumentStatus(self, params):
-        print(params)
-    
-    def m___onUserAccountConnectedChange(self, params):
-        print("User account connected: " + str(params["isUserAccountConnected"]))
-    
+        if "uri" not in params or "status" not in params:
+            return
+        session = self.weaksession()
+        if not session:
+            return
+        furi = urlparse(params["uri"])
+        filename = os.path.abspath(os.path.join(furi.netloc, furi.path))
+        skey = self.name() + "_checking"
+        for sv in session.session_views_async():
+            if sv.view.is_valid() and filename == sv.view.file_name():
+                if params["status"] == "idle":
+                    sv.view.erase_status(skey)
+                else:
+                    sv.view.set_status(skey, self.name() + ": " + params["status"])
+
     def on_pre_server_command(self, command: Mapping[str, Any], done_callback: Callable[[], None]) -> bool:
-        if command["command"] == 'grammarly.dismiss' and "arguments" in command:
-            dismissList = command["arguments"]
+        if command["command"] == "grammarly.dismiss" and "arguments" in command:
+            dismissals = command["arguments"]
             session = self.weaksession()
-            request = Request("$/dismissSuggestion", [dismissList], None, progress=True)
-            session.send_request(request, lambda p: None, lambda p: print("Error: " + str(p)))
+            request = Request("$/dismissSuggestion", [dismissals], None, progress=True)
+            session.send_request(request, lambda p: None)
             done_callback()
             return True
         return super().on_pre_server_command(command, done_callback)
