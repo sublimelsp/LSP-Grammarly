@@ -3,17 +3,14 @@ import sublime
 import os
 import re
 import base64
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 import weakref
 
 from LSP.plugin.core.protocol import Request, Location
-from LSP.plugin.core.typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, TypedDict, Union
+from LSP.plugin.core.typing import Any, Callable, List, Mapping, Optional, Tuple, Union
 from LSP.plugin.core.registry import LspTextCommand
 from LSP.plugin import register_plugin, unregister_plugin
-from LSP.plugin import AbstractPlugin, ClientConfig, SessionBufferProtocol
-from LSP.plugin import WorkspaceFolder
-from LSP.plugin.core.types import Optional, Any, Tuple, List
-from lsp_utils import ApiWrapperInterface, NpmClientHandler
+from lsp_utils import NpmClientHandler
 
 class LspGrammarlyCommand(LspTextCommand):
     session_name = 'grammarly'
