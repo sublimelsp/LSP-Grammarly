@@ -1,7 +1,7 @@
 {
   "selector": "text.html.markdown | text.tex.latex",
 
-  "initializationOptions": { 
+  "initializationOptions": {
     "clientId": "client_BaDkMgx4X19X9UxxYRCXZo"
   },
 
