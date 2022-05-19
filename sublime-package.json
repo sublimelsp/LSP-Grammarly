@@ -226,7 +226,7 @@
               "properties": {
                 "LSP": {
                   "properties": {
-                    "LSP-Grammarly": {
+                    "grammarly": {
                       "$ref": "sublime://settings/LSP-Grammarly#/definitions/PluginConfig"
                     }
                   }
