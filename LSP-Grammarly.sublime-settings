@@ -3,5 +3,83 @@
 
   "initializationOptions": { 
     "clientId": "client_BaDkMgx4X19X9UxxYRCXZo"
+  },
+
+  "settings": {
+    // Specific variety of English being written.
+    // See [this article](https://support.grammarly.com/hc/en-us/articles/115000089992-Select-between-British-English-American-English-Canadian-English-and-Australian-English)
+    // for differences.
+    // possible values: american, australian, british, canadian, auto-text
+    "grammarly.config.documentDialect": "auto-text",
+    // The style or type of writing to be checked.
+    // See [What is domain/document type](https://support.grammarly.com/hc/en-us/articles/115000091472-What-is-domain-document-type-)?
+    // possible values: academic, business, general, mail, casual, creative
+    "grammarly.config.documentDomain": "general",
+    // Flags use of conjunctions such as 'but' and 'and' at the beginning of sentences.
+    "grammarly.config.suggestions.ConjunctionAtStartOfSentence": false,
+    // Suggests ways to sound more natural and fluent.
+    "grammarly.config.suggestions.Fluency": true,
+    // Flags use of personal pronouns such as 'I' and 'you' in academic writing.
+    "grammarly.config.suggestions.InformalPronounsAcademic": false,
+    // Suggests adding missing spacing after a numeral when writing times.
+    "grammarly.config.suggestions.MissingSpaces": true,
+    // Flags a series of nouns that modify a final noun.
+    "grammarly.config.suggestions.NounStrings": true,
+    // Suggests spelling out numbers at the beginning of sentences.
+    "grammarly.config.suggestions.NumbersBeginningSentences": true,
+    // Suggests spelling out numbers zero through ten.
+    "grammarly.config.suggestions.NumbersZeroThroughTen": true,
+    // Suggests adding the Oxford comma after the second-to-last item in a list of things.
+    "grammarly.config.suggestions.OxfordComma": false,
+    // Flags use of passive voice.
+    "grammarly.config.suggestions.PassiveVoice": false,
+    // Suggests using person-first language to refer respectfully to an individual with a
+    // disability.
+    "grammarly.config.suggestions.PersonFirstLanguage": true,
+    // Suggests alternatives to potentially biased language related to older adults.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageAgeRelated": true,
+    // Suggests alternatives to potentially ableist language.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageDisabilityRelated": true,
+    // Suggests alternatives to potentially biased language related to parenting and family
+    // systems.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageFamilyRelated": true,
+    // Suggests alternatives to potentially gender-biased and non-inclusive phrasing.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageGenderRelated": true,
+    // Suggests alternatives to language related to human slavery.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageHumanRights": true,
+    // Suggests alternatives to terms with origins in the institution of slavery.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageHumanRightsRelated": true,
+    // Flags LGBTQIA+-related terms that may be seen as biased, outdated, or disrespectful in
+    // some contexts.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageLgbtqiaRelated": true,
+    // Suggests alternatives to potentially biased language related to race and ethnicity.
+    "grammarly.config.suggestions.PossiblyBiasedLanguageRaceEthnicityRelated": true,
+    // Suggests alternatives to language that may be considered politically incorrect.
+    "grammarly.config.suggestions.PossiblyPoliticallyIncorrectLanguage": true,
+    // Flags use of prepositions such as 'with' and 'in' at the end of sentences.
+    "grammarly.config.suggestions.PrepositionAtTheEndOfSentence": false,
+    // Suggests placing punctuation before closing quotation marks.
+    "grammarly.config.suggestions.PunctuationWithQuotation": true,
+    // Flags long, complicated sentences that could potentially confuse your reader.
+    "grammarly.config.suggestions.ReadabilityFillerwords": true,
+    // Suggests splitting long, complicated sentences that could potentially confuse your
+    // reader.
+    "grammarly.config.suggestions.ReadabilityTransforms": true,
+    // Flags series of sentences that follow the same pattern.
+    "grammarly.config.suggestions.SentenceVariety": true,
+    // Suggests removing extra spaces surrounding a slash.
+    "grammarly.config.suggestions.SpacesSurroundingSlash": true,
+    // Suggests rewriting split infinitives so that an adverb doesn't come between 'to' and the
+    // verb.
+    "grammarly.config.suggestions.SplitInfinitive": true,
+    // Suggests completing all incomplete sentences, including stylistic sentence fragments that
+    // may be intentional.
+    "grammarly.config.suggestions.StylisticFragments": false,
+    // Flags unnecessary use of ellipses (...).
+    "grammarly.config.suggestions.UnnecessaryEllipses": false,
+    // Suggests alternatives to words that occur frequently in the same paragraph.
+    "grammarly.config.suggestions.Variety": true,
+    // Suggests alternatives to bland and overused words such as 'good' and 'nice'.
+    "grammarly.config.suggestions.Vocabulary": true,
   }
 }
