@@ -17,12 +17,32 @@ from lsp_utils import NpmClientHandler
 class LspGrammarlyCommand(LspTextCommand):
     session_name = 'grammarly'
     msg_prefix = "LSP-Grammarly: "
+    weaksession = None  # type: Optional[weakref.ref[Session]]
+    cmd = None  # type: Optional[str]
 
     def error_message(self, msg: str) -> None:
         sublime.error_message(self.msg_prefix + msg)
 
     def message_dialog(self, msg: str) -> None:
         sublime.message_dialog(self.msg_prefix + msg)
+
+    def send_request(self, params: Any) -> None:
+        def run_async() -> None:
+            if not self.cmd:
+                return
+            session = self.session_by_name()
+            if not session:
+                return
+            self.weaksession = weakref.ref(session)
+            request = Request(self.cmd, params, None, progress=True)
+            session.send_request(request, self._on_success_async, self._on_error_async)
+        sublime.set_timeout_async(run_async)
+
+    def _on_success_async(self, response: Any) -> None:
+        raise NotImplementedError()
+
+    def _on_error_async(self, error: Any) -> None:
+        pass
 
 
 class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
@@ -32,20 +52,11 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
     internal_redirect_uri = "vscode://znck.grammarly/auth/callback"
     external_redirect_uri = internal_redirect_uri
     redirect_uri = internal_redirect_uri
-    weaksession = None  # type: Optional[weakref.ref[Session]]
 
     def run(self, edit: sublime.Edit) -> None:
-        def run_async() -> None:
-            session = self.session_by_name()
-            if not session:
-                return
-            self.weaksession = weakref.ref(session)
-            request = Request(self.cmd, self.redirect_uri, None, progress=True)
-            session.send_request(request, self._handle_response_async,
-                                 lambda _: self.error_message("Failed to start login process"))
-        sublime.set_timeout_async(run_async)
+        self.send_request(self.redirect_uri)
 
-    def _handle_response_async(self, response: Union[List[Location], None]) -> None:
+    def _on_success_async(self, response: Union[List[Location], None]) -> None:
         link = re.sub("state=[^&]*",
                       "state=" + base64.b64encode(bytes(self.external_redirect_uri, 'utf-8')).decode('ascii'),
                       str(response))
@@ -54,6 +65,9 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
             session.window.show_input_panel(
                 "Open this url in the browser and paste in its place the redirection:", link,
                 lambda r: self._send_response_async(r), None, lambda: self._send_response_async(None))
+
+    def _on_error_async(self, error: Any) -> None:
+        self.error_message("Failed to start login process")
 
     def _send_response_async(self, input: Optional[str]) -> None:
         if input:
@@ -73,38 +87,32 @@ class LspGrammarlyExecuteLogoutCommand(LspGrammarlyCommand):
     cmd = "$/logout"
 
     def run(self, edit: sublime.Edit) -> None:
-        def run_async() -> None:
-            session = self.session_by_name()
-            assert(session)
-            request = Request(self.cmd, None, None, progress=True)
-            session.send_request(request, self._handle_response_async, lambda r: self.error_message("Failed to logout"))
-        sublime.set_timeout_async(run_async)
+        self.send_request(None)
 
-    def _handle_response_async(self, response: Union[List[Location], None]) -> None:
+    def _on_success_async(self, response: Union[List[Location], None]) -> None:
         if response:
             self.message_dialog("Logout response: " + str(response))
         else:
             self.message_dialog("Logged out")
+
+    def _on_error_async(self, error: Any) -> None:
+        self.error_message("Failed to logout")
 
 
 class LspGrammarlyExecuteIsConnectedCommand(LspGrammarlyCommand):
     cmd = "$/isUserAccountConnected"
 
     def run(self, edit: sublime.Edit) -> None:
-        def run_async() -> None:
-            session = self.session_by_name()
-            if not session:
-                return
-            request = Request(self.cmd, None, None, progress=True)
-            session.send_request(request, self._handle_response_async,
-                                 lambda r: self.error_message("Failed to query whether connected: " + str(r)))
-        sublime.set_timeout_async(run_async)
+        self.send_request(None)
 
-    def _handle_response_async(self, response: Union[List[Location], None]) -> None:
+    def _on_success_async(self, response: Union[List[Location], None]) -> None:
         if response:
             self.message_dialog("Connected: " + str(response))
         else:
             self.message_dialog("Not connected")
+
+    def _on_error_async(self, error: Any) -> None:
+        self.error_message("Failed to query whether connected: " + str(error))
 
 
 class LspGrammarlyPlugin(NpmClientHandler):
