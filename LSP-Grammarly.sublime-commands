@@ -1,0 +1,14 @@
+[
+    { "caption": "LSP-Grammarly: Log in to Grammarly (Manual)", "command": "lsp_grammarly_execute_login"},
+    { "caption": "LSP-Grammarly: Log in to Grammarly through Third Party (Sends data to netlify function)", "command": "lsp_grammarly_execute_login_through_third_party"},
+    { "caption": "LSP-Grammarly: Log out from Grammarly", "command": "lsp_grammarly_execute_logout"},
+    { "caption": "LSP-Grammarly: Check if logged in to Grammarly", "command": "lsp_grammarly_execute_is_connected"},
+    {
+        "caption": "Preferences: LSP-Grammarly Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/LSP-Grammarly/LSP-Grammarly.sublime-settings",
+            "default": "{\n\t$0\n}\n"
+        }
+    }
+]
