@@ -6,6 +6,7 @@ import base64
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
+from threading import Thread
 import weakref
 
 from LSP.plugin.core.protocol import Request, Location
@@ -161,7 +162,9 @@ class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginC
                 server.handle_request()
                 server.server_close()
 
-            sublime.set_timeout_async(run_async)
+            thrd = Thread(target=run_async)
+            thrd.daemon = True
+            thrd.start()
 
         self.send_request_with_callback(self.redirect_uri, on_success_async_with_server)
 
