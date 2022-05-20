@@ -62,11 +62,10 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         self.send_request(self.redirect_uri)
 
-    def _on_success_async(self, response: Union[List[Location], None]) -> None:
-        if not response:
+    def _on_success_async(self, auth_url: Optional[str]) -> None:
+        if not auth_url:
             return
-
-        link = self._prepare_link(self.external_redirect_uri, str(response))
+        link = self._prepare_link(self.external_redirect_uri, auth_url)
         session = self.weaksession and self.weaksession()
         if session:
             webbrowser.open(link, autoraise=True)
