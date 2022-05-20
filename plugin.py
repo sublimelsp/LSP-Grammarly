@@ -188,11 +188,8 @@ class LspGrammarlyExecuteIsConnectedCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         self.send_request(None)
 
-    def _on_success_async(self, response: bool) -> None:
-        if response:
-            self.message_dialog("Logged-in")
-        else:
-            self.message_dialog("Not logged-in")
+    def _on_success_async(self, logged_in: bool) -> None:
+        self.message_dialog("Logged-in" if logged_in else "Not logged-in")
 
     def _on_error_async(self, error: Any) -> None:
         self.error_message("Failed to query whether logged in: " + str(error))
