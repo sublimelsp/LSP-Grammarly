@@ -62,19 +62,6 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         self.send_request(self.redirect_uri)
 
-    def _prepare_link(self, redirect_uri: str, response: str) -> str:
-        return re.sub("state=[^&]*",
-                      "state=" + base64.b64encode(bytes(redirect_uri, 'utf-8')).decode('ascii'),
-                      response)
-
-    def _send_authorization_url(self, authorization_url: str, weaksession: 'weakref.ref[Session]') -> None:
-        session = weaksession and weaksession()
-        if session:
-            request = Request(self.cmd_callback, authorization_url, None, progress=True)
-            session.send_request(
-                request, lambda p: None,
-                lambda _: self.error_message("Invalid authorization-response url."))
-
     def _on_success_async(self, response: Union[List[Location], None]) -> None:
         if not response:
             return
@@ -87,8 +74,10 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
                 "Follow the in-browser instructions and paste here the final URL after the indirection:", "",
                 lambda r: self._send_response_async(r), None, lambda: self._send_response_async(None))
 
-    def _on_error_async(self, error: Any) -> None:
-        self.error_message("Failed to start login process")
+    def _prepare_link(self, redirect_uri: str, response: str) -> str:
+        return re.sub("state=[^&]*",
+                      "state=" + base64.b64encode(bytes(redirect_uri, 'utf-8')).decode('ascii'),
+                      response)
 
     def _send_response_async(self, input: Optional[str]) -> None:
         if input:
@@ -98,6 +87,17 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
                 return
             if self.weaksession:
                 self._send_authorization_url(input, self.weaksession)
+
+    def _send_authorization_url(self, authorization_url: str, weaksession: 'weakref.ref[Session]') -> None:
+        session = weaksession and weaksession()
+        if session:
+            request = Request(self.cmd_callback, authorization_url, None, progress=True)
+            session.send_request(
+                request, lambda _: self.view.run_command("lsp_grammarly_execute_is_connected"),
+                lambda _: self.error_message("Invalid authorization-response url."))
+
+    def _on_error_async(self, error: Any) -> None:
+        self.error_message("Failed to start login process")
 
 
 class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginCommand):
@@ -191,11 +191,11 @@ class LspGrammarlyExecuteIsConnectedCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         self.send_request(None)
 
-    def _on_success_async(self, response: Union[List[Location], None]) -> None:
+    def _on_success_async(self, response: bool) -> None:
         if response:
-            self.message_dialog("Logged in: " + str(response))
+            self.message_dialog("Logged-in")
         else:
-            self.message_dialog("Not logged in")
+            self.message_dialog("Not logged-in")
 
     def _on_error_async(self, error: Any) -> None:
         self.error_message("Failed to query whether logged in: " + str(error))
