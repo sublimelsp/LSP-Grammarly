@@ -175,11 +175,8 @@ class LspGrammarlyExecuteLogoutCommand(LspGrammarlyCommand):
     def run(self, edit: sublime.Edit) -> None:
         self.send_request(None)
 
-    def _on_success_async(self, response: Union[List[Location], None]) -> None:
-        if response:
-            self.message_dialog("Logout response: " + str(response))
-        else:
-            self.message_dialog("Logged out")
+    def _on_success_async(self, response: None) -> None:
+        self.message_dialog("Logged out")
 
     def _on_error_async(self, error: Any) -> None:
         self.error_message("Failed to logout")
