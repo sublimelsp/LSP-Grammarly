@@ -28,7 +28,7 @@ class LspGrammarlyCommand(LspTextCommand):
     def message_dialog(self, msg: str) -> None:
         sublime.message_dialog(self.msg_prefix + msg)
 
-    def send_request_with_callback(self, params: Any, callback: Callable[Union[List[Location], None], None]) -> None:
+    def send_request_with_callback(self, params: Any, callback: Callable[[Union[List[Location], None]], None]) -> None:
         def run_async() -> None:
             if not self.cmd:
                 return
@@ -49,6 +49,7 @@ class LspGrammarlyCommand(LspTextCommand):
     def _on_error_async(self, error: Any) -> None:
         pass
 
+
 class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
     cmd = "$/getOAuthUrl"
     cmd_callback = "$/handleOAuthCallbackUri"
@@ -59,13 +60,13 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
 
     def run(self, edit: sublime.Edit) -> None:
         self.send_request(self.redirect_uri)
-    
+
     def _prepare_link(self, redirect_uri: str, response: str) -> str:
         return re.sub("state=[^&]*",
                       "state=" + base64.b64encode(bytes(redirect_uri, 'utf-8')).decode('ascii'),
                       response)
-    
-    def _send_authorization_url(self, authorization_url: str, weaksession: weakref) -> None:
+
+    def _send_authorization_url(self, authorization_url: str, weaksession: 'weakref.ref[Session]') -> None:
         session = weaksession and weaksession()
         if session:
             request = Request(self.cmd_callback, authorization_url, None, progress=True)
@@ -94,7 +95,9 @@ class LspGrammarlyExecuteLoginCommand(LspGrammarlyCommand):
             if res.scheme != 'vscode':
                 self.error_message("Unexpected authorization URL schema. Hint: the inputted authorization URL should start with 'vscode://'")
                 return
-            self._send_authorization_url(input, self.weaksession)
+            if self.weaksession:
+                self._send_authorization_url(input, self.weaksession)
+
 
 class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginCommand):
     """
@@ -102,7 +105,7 @@ class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginC
 
     To avoid the forbidden redirect to localhost, we use the same
     netlify function as the VSCode plugin to redirect to the localhost.
-    **Without any guarantee**, the VSCode netlify functions should be 
+    **Without any guarantee**, the VSCode netlify functions should be
     running the code from here:
     https://github.com/znck/grammarly/blob/main/redirect/functions/redirect.js
     """
@@ -119,7 +122,6 @@ class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginC
 
         class HandleAuthResponse(BaseHTTPRequestHandler):
             def do_GET(self):
-                close_connection = True
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
@@ -131,7 +133,7 @@ class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginC
                             LSP-Grammarly: You can close this tab
                         </body>
                     </html>""".encode('utf-8'))
-                logincmd = weaklogincmd and weaklogincmd()
+                logincmd = weaklogincmd()
                 if not logincmd:
                     return
                 if not self.path:
@@ -142,12 +144,12 @@ class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginC
                     return
                 input = LspGrammarlyExecuteLoginThroughThirdPartyCommand.internal_redirect_uri + '?code=' + code[0]
                 logincmd._send_authorization_url(input, weaksession)
-        
+
         server = HTTPServer(('localhost', 0), HandleAuthResponse)
-        server.timeout = 5 * 60 # 5 min
-        
+        server.timeout = 5 * 60  # 5 min
+
         final_auth_link = 'http://localhost:' + str(server.server_address[1]) + self.localhost_qs
-        
+
         def on_success_async_with_server(response: Union[List[Location], None]) -> None:
             if not response:
                 return
@@ -162,6 +164,7 @@ class LspGrammarlyExecuteLoginThroughThirdPartyCommand(LspGrammarlyExecuteLoginC
             sublime.set_timeout_async(run_async)
 
         self.send_request_with_callback(self.redirect_uri, on_success_async_with_server)
+
 
 class LspGrammarlyExecuteLogoutCommand(LspGrammarlyCommand):
     cmd = "$/logout"
