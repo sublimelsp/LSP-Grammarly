@@ -2,7 +2,7 @@
   "name": "lsp-grammarly",
   "private": true,
   "dependencies": {
-    "grammarly-languageserver": "^0.0.3",
+    "grammarly-languageserver": "^0.0.4",
     "patch-package": "^6.4.7"
   },
   "scripts": {
