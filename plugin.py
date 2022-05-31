@@ -223,17 +223,6 @@ class LspGrammarlyPlugin(NpmClientHandler):
                 else:
                     sv.view.set_status(skey, self.name() + ": " + params["status"])
 
-    def on_pre_server_command(self, command: Mapping[str, Any], done_callback: Callable[[], None]) -> bool:
-        if command["command"] == "grammarly.dismiss" and "arguments" in command:
-            dismissals = command["arguments"]
-            session = self.weaksession()
-            assert(session)
-            request = Request("$/dismissSuggestion", [dismissals], None, progress=True)
-            session.send_request(request, lambda p: None)
-            done_callback()
-            return True
-        return super().on_pre_server_command(command, done_callback)
-
 
 def plugin_loaded() -> None:
     register_plugin(LspGrammarlyPlugin)
