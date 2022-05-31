@@ -2,10 +2,6 @@
   "name": "lsp-grammarly",
   "private": true,
   "dependencies": {
-    "grammarly-languageserver": "^0.0.3",
-    "patch-package": "^6.4.7"
-  },
-  "scripts": {
-    "postinstall": "patch-package"
+    "grammarly-languageserver": "^0.0.5-next-1653943559.0"
   }
 }
