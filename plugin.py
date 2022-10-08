@@ -1,6 +1,6 @@
 from LSP.plugin import register_plugin, unregister_plugin, uri_to_filename
-from LSP.plugin.core.typing import Dict, Tuple
-from lsp_utils import NpmClientHandler
+from LSP.plugin.core.typing import Dict
+from lsp_utils import NpmClientHandler, notification_handler
 import os
 
 SESSION_NAME = 'grammarly'
@@ -16,10 +16,11 @@ class LspGrammarlyPlugin(NpmClientHandler):
         return SESSION_NAME
 
     @classmethod
-    def minimum_node_version(cls) -> Tuple[int, int, int]:
-        return (16, 13, 0)
+    def required_node_version(cls) -> str:
+        return "^16.13.0 || 17"
 
-    def m___onDocumentStatus(self, params: Dict[str, str]) -> None:
+    @notification_handler("$/onDocumentStatus")
+    def onDocumentStatus(self, params: Dict[str, str]) -> None:
         if "uri" not in params or "status" not in params:
             return
         session = self.weaksession()
