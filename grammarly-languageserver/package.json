@@ -2,6 +2,6 @@
   "name": "lsp-grammarly",
   "private": true,
   "dependencies": {
-    "grammarly-languageserver": "^0.0.5-next-1660577955.0"
+    "grammarly-languageserver": "^0.0.5-next-1675361654.0"
   }
 }
