@@ -1,5 +1,5 @@
 {
-  "selector": "text.html.markdown | text.tex.latex",
+  "selector": "text.asciidoc | text.html.markdown | text.tex.latex",
 
   "initializationOptions": {
     "clientId": "client_BaDkMgx4X19X9UxxYRCXZo"
