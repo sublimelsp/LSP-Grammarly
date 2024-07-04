@@ -1,5 +1,8 @@
-# Sublime LSP plugin for Grammarly
+> [!WARNING]
+> The https://github.com/znck/grammarly language server was archived and is no longer maintained which subsequently makes this package no longer supported.
+> Also that grammarly language server doesn't support Node >16 which makes this package not work with modern and secure node versions.
 
+# Sublime LSP plugin for Grammarly
 
 [Grammarly](https://grammarly.com/) support for [Sublime's LSP plugin](https://github.com/sublimelsp/LSP), using the [Grammarly language server](https://github.com/znck/grammarly)
 
