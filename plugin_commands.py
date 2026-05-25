@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from .plugin import SESSION_NAME
 from http.server import BaseHTTPRequestHandler
 from http.server import HTTPServer
 from LSP.plugin import LspTextCommand
@@ -20,7 +19,6 @@ import webbrowser
 
 
 class LspGrammarlyCommand(LspTextCommand):
-    session_name = SESSION_NAME
     msg_prefix = "LSP-Grammarly: "
     weaksession: weakref.ref[Session] | None = None
     cmd: str | None = None
